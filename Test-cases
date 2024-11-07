@@ -1,0 +1,51 @@
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using AlphabetCheckerApi;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Xunit;
+
+namespace AlphabetCheckerApi.Tests
+{
+    public class AlphabetCheckerControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    {
+        private readonly HttpClient _client;
+
+        // Constructor to initialize the client with the WebApplicationFactory
+        public AlphabetCheckerControllerTests(WebApplicationFactory<Program> factory)
+        {
+            _client = factory.CreateClient();
+        }
+
+        // Test to check if the API correctly detects if the string contains all alphabets
+        [Fact]
+        public async Task CheckIfContainsAllAlphabets_ReturnsTrue_WhenStringContainsAllAlphabets()
+        {
+            // Arrange: The input string that contains all the alphabets
+            var input = "The quick brown fox jumps over a lazy dog";
+            var content = new StringContent($"{{\"input\":\"{input}\"}}", Encoding.UTF8, "application/json");
+
+            // Act: Send a POST request to the API endpoint
+            var response = await _client.PostAsync("/api/alphabetchecker/check", content);
+
+            // Assert: Verify that the response is successful and contains the correct result
+            response.EnsureSuccessStatusCode();  // Throws if status code is not 2xx
+            var responseString = await response.Content.ReadAsStringAsync();
+            Assert.Contains("\"containsAllAlphabets\":true", responseString);
+        }
+
+        // Test to check if the API returns false when the string does not contain all alphabets
+        [Fact]
+        public async Task CheckIfContainsAllAlphabets_ReturnsFalse_WhenStringDoesNotContainAllAlphabets()
+        {
+            // Arrange: The input string that does not contain all the alphabets
+            var input = "The quick brown fox jumps over a lazy";
+            var content = new StringContent($"{{\"input\":\"{input}\"}}", Encoding.UTF8, "application/json");
+
+            // Act: Send a POST request to the API endpoint
+            var response = await _client.PostAsync("/api/alphabetchecker/check", content);
+
+            // Assert: Verify that the response is successful and contains the correct result
+            response.EnsureSuccessStatusCode();  // Throws if status code is not 2xx
+            var responseString = await response.Content.ReadAsStringAsync();
+         
