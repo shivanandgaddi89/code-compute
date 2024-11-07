@@ -1,0 +1,32 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+
+namespace AlphabetCheckerApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AlphabetCheckerController : ControllerBase
+    {
+        [HttpPost("check")]
+        public IActionResult CheckIfContainsAllAlphabets([FromBody] string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return BadRequest("Input string cannot be null or empty.");
+            }
+
+            bool containsAllAlphabets = ContainsAllAlphabets(input);
+            return Ok(new { containsAllAlphabets });
+        }
+
+        private bool ContainsAllAlphabets(string input)
+        {
+            // Convert input to lowercase to make the check case-insensitive
+            input = input.ToLower();
+
+            // Use Enumerable.Range to generate a range of letters from 'a' to 'z'
+            return Enumerable.Range('a', 26)  // Generate numbers from 'a' (97) to 'z' (122)
+                             .All(c => input.Contains((char)c));
+        }
+    }
+}
